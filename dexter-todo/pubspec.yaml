@@ -10,6 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  equatable: ^2.0.5
+  flutter_bloc: ^8.1.1
+  intl: ^0.17.0
+  google_fonts: ^3.0.1
 
 dev_dependencies:
   flutter_test:
@@ -18,3 +22,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/empty_tasks.png
