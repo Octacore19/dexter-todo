@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "666148143722",
+    "project_id": "dexter-health-ec4db",
+    "storage_bucket": "dexter-health-ec4db.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:666148143722:android:acc34a40f0ce0887f0c013",
+        "android_client_info": {
+          "package_name": "com.octacore.dexter_todo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "666148143722-r7tqqbisjpjrokkpqol3noh0r57kqjch.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCya3OiXKEVJJD80B8IoEmFVtnvkEJAYnE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "666148143722-r7tqqbisjpjrokkpqol3noh0r57kqjch.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "666148143722-r2nkhbp7l7nnrstgo0li53i0kg1j442s.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.octacore.dexterTodo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
