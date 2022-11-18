@@ -19,7 +19,7 @@ class UserCubit extends Cubit<UserState> {
 
   void submitUsername() async {
     if (state is UpdatedUserState) {
-      final user = UserEntity(username: (state as UpdatedUserState).username);
+      final user = UserEntity.create((state as UpdatedUserState).username);
       repo.saveUserToFirebase(user);
     }
   }

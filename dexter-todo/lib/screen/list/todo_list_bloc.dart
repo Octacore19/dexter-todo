@@ -47,7 +47,7 @@ class TodoListBloc extends Bloc<TodoListEvents, TodoListState> {
     emit(
       TodoListState.updated(
         filters: state.filters,
-        tasks: _filterTasks(event.tasks, _currentFilter),
+        tasks: _filterTasks(filter: _currentFilter),
       ),
     );
   }
@@ -62,14 +62,9 @@ class TodoListBloc extends Bloc<TodoListEvents, TodoListState> {
             ? e.copyWith(isSelected: true)
             : e.copyWith(isSelected: false))
         .toList();
-    List<Task> oldTasks = List.empty(growable: true);
-    for (var tasks in state.tasks.values) {
-      oldTasks.addAll(tasks);
-    }
-    oldTasks.removeWhere((e) => e.id.isEmpty);
     emit(TodoListState.updated(
       filters: filters,
-      tasks: _filterTasks(oldTasks, event.filter),
+      tasks: _filterTasks(filter: event.filter),
     ));
   }
 
@@ -79,30 +74,33 @@ class TodoListBloc extends Bloc<TodoListEvents, TodoListState> {
   ) {
     List<Task> oldTasks = List.empty(growable: true);
     final oTask = event.task;
-    final nTask = oTask.copyWith(isCompleted: !oTask.isCompleted);
+    final nTask = oTask.copyWith(isCompleted: true);
     for (var tasks in state.tasks.values) {
       oldTasks.addAll(tasks);
     }
+    taskRepo.updateTask(nTask);
     oldTasks.removeWhere((e) => e.id.isEmpty);
     int index = oldTasks.indexWhere((e) => e.id.trim() == nTask.id.trim());
     oldTasks[index] = nTask;
     emit(
       TodoListState.updated(
         filters: state.filters,
-        tasks: _filterTasks(oldTasks, _currentFilter),
+        tasks: _filterTasks(filter: _currentFilter, tasks: oldTasks),
       ),
     );
   }
 
-  Map<Shift, List<Task>> _filterTasks([List<Task>? tasks, DateFilter? filter]) {
+  Map<Shift, List<Task>> _filterTasks({
+    List<Task>? tasks,
+    DateFilter? filter,
+  }) {
     List<Task> fTasks = List.empty(growable: true);
     if (filter != null) {
       final format = DateFormat('yyyy-MM-dd');
-      final t = tasks == null || tasks.isEmpty ? _tasks : tasks;
-      fTasks = t
+      fTasks = (tasks ?? _tasks)
           .where((element) =>
-              format.parse(element.dateTime).millisecondsSinceEpoch ==
-              format.parse(filter.longDateIso).millisecondsSinceEpoch)
+              format.parse(element.dateTime) ==
+              format.parse(filter.longDateIso))
           .toList();
     }
     final nTasks = fTasks.groupBy((m) => m.shift);

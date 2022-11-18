@@ -15,32 +15,33 @@ class TaskRepoImpl implements TaskRepo {
 
   final FirebaseFirestore db;
   final UserRepo userRepo;
+
+  CollectionReference<TaskEntity> get _taskRef =>
+      db.collection('tasks').withConverter(
+            fromFirestore: TaskEntity.fromFirestore,
+            toFirestore: (TaskEntity entity, options) => entity.toFirestore(),
+          );
+
   final _shifts = List<Shift>.empty(growable: true);
 
   @override
-  Stream<List<Task>> get tasks => db
-          .collection('tasks')
-          .withConverter(
-            fromFirestore: TaskEntity.fromFirestore,
-            toFirestore: (TaskEntity entity, options) => entity.toFirestore(),
-          )
-          .snapshots()
-          .asyncMap(
+  Stream<List<Task>> get tasks => _taskRef.snapshots().asyncMap(
         (event) async {
           final s = await getAllShifts();
           return event.docs.map(
             (e) {
               final data = e.data();
               final shift = s.firstWhere(
-                  (element) => element.id.trim() == data.shift?.trim(),
-                  orElse: () => Shift.empty());
+                (element) => element.id.trim() == data.shift?.trim(),
+                orElse: () => Shift.empty(),
+              );
               return Task(
                 title: data.title ?? '',
                 id: data.id ?? '',
                 isCompleted: data.isCompleted ?? false,
                 shift: shift,
                 dateTime: data.dateTime ?? '',
-                user: data.user ?? ''
+                user: data.user ?? '',
               );
             },
           ).toList();
@@ -50,10 +51,36 @@ class TaskRepoImpl implements TaskRepo {
   @override
   Future<void> addNewTasks(TaskEntity task) async {
     try {
-      // final user = userRepo.currentUser;
-      final taskRef = db.collection('tasks').doc();
+      final taskRef = _taskRef.doc();
       db.runTransaction((transaction) async {
-        transaction.set(taskRef, task.toFirestore(id: taskRef.id));
+        transaction.set(taskRef, task);
+        final newTask = task.copyWith(id: taskRef.id);
+        transaction.update(taskRef, newTask.toFirestore());
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  @override
+  Future<void> updateTask(Task task) async {
+    try {
+      final taskDocRef = _taskRef.doc(task.id);
+      await db.runTransaction((transaction) {
+        return transaction.get(taskDocRef).then((taskRef) {
+          final oldTask = taskRef.data();
+          final updatedTask = oldTask?.copyWith(
+            id: task.id,
+            title: task.title,
+            dateTime: task.dateTime,
+            description: oldTask.description,
+            isCompleted: task.isCompleted,
+            shift: task.shift.id,
+            user: task.user,
+          );
+          transaction.update(taskDocRef, updatedTask?.toFirestore() ?? {});
+          return updatedTask;
+        });
       });
     } catch (e) {
       debugPrint(e.toString());
@@ -80,7 +107,7 @@ class TaskRepoImpl implements TaskRepo {
       ),
     );
     _shifts.addAll(s);
-    _shifts.sort((a,b) => a.start.compareTo(b.start));
+    _shifts.sort((a, b) => a.start.compareTo(b.start));
     return s.toList();
   }
 }

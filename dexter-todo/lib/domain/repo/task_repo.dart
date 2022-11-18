@@ -8,4 +8,6 @@ abstract class TaskRepo {
   List<Shift> get shifts;
 
   Future<void> addNewTasks(TaskEntity task);
+
+  Future<void> updateTask(Task task);
 }

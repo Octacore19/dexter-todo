@@ -76,7 +76,7 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
     Emitter<ManageTaskState> emit,
   ) {
     final shift = taskRepo.shifts
-        .firstWhere((element) => element.id.trim() == event.shift);
+        .firstWhere((element) => element.id.trim() == event.shift.trim());
     emit(ManageTaskState.updated(
       enableSubmission: state.enableSubmission,
       title: state.title,
@@ -92,7 +92,7 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
     Emitter<ManageTaskState> emit,
   ) {
     final user =
-        userRepo.users.firstWhere((element) => element.id.trim() == event.user);
+        userRepo.users.firstWhere((element) => element.id.trim() == event.user.trim());
     emit(ManageTaskState.updated(
       enableSubmission: state.enableSubmission,
       title: state.title,
@@ -107,11 +107,13 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
     OnNewTaskSubmitted event,
     Emitter<ManageTaskState> emit,
   ) async {
-    final task = TaskEntity(
+    final task = TaskEntity.create(
       title: state.title,
       description: state.description,
       dateTime: state.dateTime,
       isCompleted: false,
+      shift: state.shift.id,
+      user: state.selectedUser.id,
     );
     await taskRepo.addNewTasks(task);
     emit(ManageTaskState.init(state.shift, state.selectedUser));

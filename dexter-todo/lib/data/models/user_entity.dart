@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserEntity {
-  const UserEntity({
+  const UserEntity._({
     this.id,
     this.username,
     this.dateCreated,
@@ -13,12 +13,21 @@ class UserEntity {
   final FieldValue? dateCreated;
   final FieldValue? dateModified;
 
+  factory UserEntity.create(String username) {
+    return UserEntity._(
+      id: '',
+      username: username,
+      dateCreated: FieldValue.serverTimestamp(),
+      dateModified: FieldValue.serverTimestamp(),
+    );
+  }
+
   factory UserEntity.fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snapshot,
     SnapshotOptions? options,
   ) {
     final json = snapshot.data();
-    return UserEntity(
+    return UserEntity._(
       id: json?['id'],
       username: json?['username'],
     );
@@ -28,8 +37,8 @@ class UserEntity {
     return {
       "id": id,
       "username": username,
-      "dateCreated": FieldValue.serverTimestamp(),
-      "dateModified": FieldValue.serverTimestamp(),
+      "dateCreated": dateCreated,
+      "dateModified": dateModified,
     };
   }
 
@@ -37,7 +46,7 @@ class UserEntity {
     String? id,
     String? username,
   }) {
-    return UserEntity(
+    return UserEntity._(
       id: id ?? this.id,
       username: username ?? this.username,
       dateCreated: dateCreated,
