@@ -54,7 +54,7 @@ class TodoListScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple.shade900,
-        onPressed: () => Navigator.of(context).pushNamed('/new-todo-screen'),
+        onPressed: () => Navigator.of(context).pushNamed('/manage-todo-screen'),
         child: const Icon(Icons.add),
       ),
     );
@@ -184,25 +184,29 @@ class TodoListScreen extends StatelessWidget {
   }
 
   Widget _buildCheckTile(BuildContext context, Task task) {
+    final b = BlocProvider.of<TodoListBloc>(context);
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          children: [
-            Checkbox(
-              value: task.isCompleted,
-              onChanged: (v) {},
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
+      child: InkWell(
+        onTap: () => Navigator.of(context).pushNamed('/manage-todo-screen'),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              Checkbox(
+                value: task.isCompleted,
+                onChanged: (v) => b.add(OnTaskStatusChanged(task)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Text(task.title),
-          ],
+              const SizedBox(width: 8),
+              Text(task.title),
+            ],
+          ),
         ),
       ),
     );

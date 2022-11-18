@@ -63,6 +63,10 @@ class _State extends State<ManageTaskScreen> {
                   _buildUserSelector(),
                 ],
               ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 48),
+                child: Divider(thickness: 2),
+              ),
               _buildAddTaskButton(),
             ],
           ),

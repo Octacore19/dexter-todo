@@ -39,6 +39,8 @@ class TaskRepoImpl implements TaskRepo {
                 id: data.id ?? '',
                 isCompleted: data.isCompleted ?? false,
                 shift: shift,
+                dateTime: data.dateTime ?? '',
+                user: data.user ?? ''
               );
             },
           ).toList();

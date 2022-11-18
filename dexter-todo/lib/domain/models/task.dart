@@ -7,12 +7,16 @@ class Task extends Equatable {
     required this.id,
     required this.isCompleted,
     required this.shift,
+    required this.dateTime,
+    required this.user,
   });
 
   final String id;
   final String title;
   final bool isCompleted;
   final Shift shift;
+  final String dateTime;
+  final String user;
 
   factory Task.empty() {
     return Task(
@@ -20,6 +24,8 @@ class Task extends Equatable {
       id: '',
       isCompleted: false,
       shift: Shift.empty(),
+      dateTime: '',
+      user: '',
     );
   }
 
@@ -28,15 +34,26 @@ class Task extends Equatable {
     String? title,
     bool? isCompleted,
     Shift? shift,
+    String? dateTime,
+    String? user,
   }) {
     return Task(
       title: title ?? this.title,
       id: id ?? this.id,
       isCompleted: isCompleted ?? this.isCompleted,
       shift: shift ?? this.shift,
+      dateTime: dateTime ?? this.dateTime,
+      user: user ?? this.user,
     );
   }
 
   @override
-  List<Object?> get props => [id, title, isCompleted, shift];
+  List<Object?> get props => [
+        id,
+        title,
+        isCompleted,
+        shift,
+        dateTime,
+        user,
+      ];
 }

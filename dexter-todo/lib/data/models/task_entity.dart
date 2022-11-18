@@ -10,6 +10,7 @@ class TaskEntity {
     this.timeModified,
     this.isCompleted,
     this.shift,
+    this.user,
   });
 
   final String? id;
@@ -18,6 +19,7 @@ class TaskEntity {
   final String? dateTime;
   final bool? isCompleted;
   final String? shift;
+  final String? user;
   final FieldValue? timeAdded;
   final FieldValue? timeModified;
 
@@ -33,6 +35,7 @@ class TaskEntity {
       dateTime: json?['dateTime'],
       isCompleted: json?['isCompleted'],
       shift: json?['shift'],
+      user: json?['user'],
     );
   }
 
@@ -44,6 +47,7 @@ class TaskEntity {
       "dateTime": dateTime,
       "isCompleted": isCompleted,
       "shift": shift,
+      "user": user,
       "timeAdded": FieldValue.serverTimestamp(),
       "timeModified": FieldValue.serverTimestamp(),
     };

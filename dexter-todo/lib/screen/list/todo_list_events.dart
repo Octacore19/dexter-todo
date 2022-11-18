@@ -24,3 +24,12 @@ class OnLoadAllTasks extends TodoListEvents {
   @override
   List<Object?> get props => [tasks];
 }
+
+class OnTaskStatusChanged extends TodoListEvents {
+  const OnTaskStatusChanged(this.task);
+
+  final Task task;
+
+  @override
+  List<Object?> get props => [task];
+}

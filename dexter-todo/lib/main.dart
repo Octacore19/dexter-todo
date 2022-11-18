@@ -60,9 +60,10 @@ class MyApp extends StatelessWidget {
           '/todo-list-screen': (context) => BlocProvider(
               create: (_) => TodoListBloc(
                   filters: generateDateFilters(),
-                  taskRepo: RepositoryProvider.of(context)),
+                  taskRepo: RepositoryProvider.of(context),
+                  userRepo: RepositoryProvider.of(context)),
               child: const TodoListScreen()),
-          '/new-todo-screen': (context) => BlocProvider(
+          '/manage-todo-screen': (context) => BlocProvider(
               create: (_) => ManageTasksBloc(
                   taskRepo: RepositoryProvider.of(context),
                   userRepo: RepositoryProvider.of(context)),
