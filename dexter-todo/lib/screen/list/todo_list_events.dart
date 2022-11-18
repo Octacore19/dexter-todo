@@ -16,4 +16,11 @@ class OnFilterDateChanged extends TodoListEvents {
   List<Object?> get props => [filter];
 }
 
-class OnLoadAllTasks extends TodoListEvents {}
+class OnLoadAllTasks extends TodoListEvents {
+  const OnLoadAllTasks(this.tasks);
+
+  final List<Task> tasks;
+
+  @override
+  List<Object?> get props => [tasks];
+}

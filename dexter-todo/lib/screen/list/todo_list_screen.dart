@@ -1,6 +1,5 @@
 import 'package:dexter_todo/domain/models/date_filter.dart';
 import 'package:dexter_todo/domain/models/task.dart';
-import 'package:dexter_todo/filter_generator.dart';
 import 'package:dexter_todo/screen/list/todo_list_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,67 +10,58 @@ class TodoListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => TodoListBloc(filters: generateDateFilters()),
-      child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          elevation: 0,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
-            statusBarColor: Colors.white,
-          ),
+    String? args = ModalRoute.of(context)?.settings.arguments as String?;
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 0,
+        elevation: 0,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: Colors.white,
         ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildHeadline(context),
-                const SizedBox(height: 16),
-                _buildDateSelectionCard(context),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: BlocBuilder<TodoListBloc, TodoListStates>(
-                    builder: (_, state) {
-                      if (state is UpdatedTodoListState) {
-                        if (state.firstShift.isEmpty &&
-                            state.secondShift.isEmpty &&
-                            state.thirdShift.isEmpty) {
-                          return _buildEmpty();
-                        }
-                        return CustomScrollView(
-                          slivers: [
-                            ..._buildShifts(
-                                'First Shift', context, state.firstShift),
-                            ..._buildShifts(
-                                'Second Shift', context, state.secondShift),
-                            ..._buildShifts(
-                                'Third Shift', context, state.thirdShift),
-                          ],
-                        );
-                      }
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHeadline(context, args),
+              const SizedBox(height: 16),
+              _buildDateSelectionCard(context),
+              const SizedBox(height: 24),
+              Expanded(
+                child: BlocBuilder<TodoListBloc, TodoListState>(
+                  builder: (_, state) {
+                    if (state.tasks.isEmpty) {
                       return _buildEmpty();
-                    },
-                  ),
-                )
-              ],
-            ),
+                    }
+                    return CustomScrollView(
+                      slivers: state.tasks.entries
+                          .map(
+                            (e) => _buildShifts(e.key.type, context, e.value),
+                      )
+                          .toList(),
+                    );
+                  },
+                ),
+              )
+            ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.deepPurple.shade900,
-          onPressed: () {},
-          child: const Icon(Icons.add),
-        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.deepPurple.shade900,
+        onPressed: () => Navigator.of(context).pushNamed('/new-todo-screen'),
+        child: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildHeadline(BuildContext context) {
+  Widget _buildHeadline(BuildContext context, String? title) {
+    final name = title ?? "User";
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -81,15 +71,14 @@ class TodoListScreen extends StatelessWidget {
           'Hello,',
           style: Theme.of(context)
               .textTheme
-              .headline4
-              ?.copyWith(fontWeight: FontWeight.w600, color: Colors.black),
+              .headline5
+              ?.copyWith(fontWeight: FontWeight.w500, color: Colors.black),
         ),
-        const SizedBox(height: 8),
         Text(
-          'Username.',
+          '$name.',
           style: Theme.of(context)
               .textTheme
-              .headline4
+              .headline5
               ?.copyWith(fontWeight: FontWeight.w700, color: Colors.black),
         ),
       ],
@@ -97,7 +86,7 @@ class TodoListScreen extends StatelessWidget {
   }
 
   Widget _buildDateSelectionCard(BuildContext context) {
-    return BlocBuilder<TodoListBloc, TodoListStates>(
+    return BlocBuilder<TodoListBloc, TodoListState>(
       builder: (_, state) => Card(
         elevation: 0,
         color: Colors.grey.shade100,
@@ -159,40 +148,41 @@ class TodoListScreen extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildShifts(
+  Widget _buildShifts(
     String title,
     BuildContext context,
     List<Task> tasks,
   ) {
     if (tasks.isEmpty) {
-      return [const SliverToBoxAdapter()];
+      return const SliverToBoxAdapter();
     }
-    return [
-      SliverToBoxAdapter(
-        child: Text(
-          title,
-          style: Theme.of(context)
-              .textTheme
-              .headline6
-              ?.copyWith(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (_, index) {
+          if (index == 0) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.headline5?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                      letterSpacing: 2,
+                    ),
+              ),
+            );
+          }
+          return Padding(
+            padding: EdgeInsets.only(bottom: index == tasks.length - 1 ? 0 : 16),
+            child: _buildCheckTile(context, tasks[index]),
+          );
+        },
+        childCount: tasks.length,
       ),
-      SliverPadding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (_, index) => Padding(
-              padding: EdgeInsets.only(bottom: index == 4 ? 0 : 16),
-              child: _buildCheckTile(context, tasks[index].title),
-            ),
-            childCount: tasks.length,
-          ),
-        ),
-      ),
-    ];
+    );
   }
 
-  Widget _buildCheckTile(BuildContext context, String title) {
+  Widget _buildCheckTile(BuildContext context, Task task) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -203,14 +193,14 @@ class TodoListScreen extends StatelessWidget {
         child: Row(
           children: [
             Checkbox(
-              value: true,
+              value: task.isCompleted,
               onChanged: (v) {},
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
             const SizedBox(width: 8),
-            Text(title),
+            Text(task.title),
           ],
         ),
       ),

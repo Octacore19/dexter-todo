@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:dexter_todo/domain/models/date_filter.dart';
+import 'package:dexter_todo/domain/models/shift.dart';
 import 'package:dexter_todo/domain/models/task.dart';
+import 'package:dexter_todo/domain/repo/task_repo.dart';
+import 'package:dexter_todo/utils.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,45 +12,61 @@ part 'todo_list_events.dart';
 
 part 'todo_list_state.dart';
 
-class TodoListBloc extends Bloc<TodoListEvents, TodoListStates> {
+class TodoListBloc extends Bloc<TodoListEvents, TodoListState> {
   TodoListBloc({
     required List<DateFilter> filters,
-  }) : super(InitialTodoListState(filters: filters)) {
+    required this.taskRepo,
+  }) : super(TodoListState.init(filters)) {
     on<OnFilterDateChanged>(_onDateFilterChanged);
     on<OnLoadAllTasks>(_onLoadAllTasks);
 
-    add(OnLoadAllTasks());
+    _taskSub = taskRepo.tasks.listen((data) {
+      if (data.isNotEmpty) {
+        add(OnLoadAllTasks(data));
+      }
+    });
   }
 
+  late StreamSubscription _taskSub;
+  final TaskRepo taskRepo;
+
   void _onLoadAllTasks(
-    TodoListEvents events,
-    Emitter<TodoListStates> emit,
+    OnLoadAllTasks event,
+    Emitter<TodoListState> emit,
   ) {
+    final tasks = event.tasks.groupBy((m) => m.shift);
+    for (var element in tasks.keys) {
+      final value = tasks[element]!;
+      value.insert(0, Task.empty());
+      tasks[element] = value;
+    }
     emit(
-      UpdatedTodoListState(
+      TodoListState.updated(
         filters: state.filters,
-        firstShift: state.firstShift,
-        secondShift: state.secondShift,
-        thirdShift: state.thirdShift,
+        tasks: tasks,
       ),
     );
   }
 
   void _onDateFilterChanged(
-    TodoListEvents event,
-    Emitter<TodoListStates> emit,
+    OnFilterDateChanged event,
+    Emitter<TodoListState> emit,
   ) {
-    DateFilter newFilter = (event as OnFilterDateChanged).filter;
+    DateFilter newFilter = event.filter;
     List<DateFilter> filters = state.filters
         .map((e) => e.longDateIso == newFilter.longDateIso
             ? e.copyWith(isSelected: true)
             : e.copyWith(isSelected: false))
         .toList();
-    emit(UpdatedTodoListState(
+    emit(TodoListState.updated(
       filters: filters,
-      firstShift: state.firstShift,
-      secondShift: state.secondShift,
-      thirdShift: state.thirdShift,
+      tasks: state.tasks,
     ));
+  }
+
+  @override
+  Future<void> close() {
+    _taskSub.cancel();
+    return super.close();
   }
 }
