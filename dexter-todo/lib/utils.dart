@@ -1,4 +1,5 @@
 import 'package:dexter_todo/domain/models/date_filter.dart';
+import 'package:dexter_todo/domain/models/modal_item.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -22,7 +23,6 @@ Future<DateTime?> showDateTimePicker({
   required BuildContext context,
   required DateTime initialDate,
 }) async {
-
   final datePicked = await showDatePicker(
     context: context,
     initialDate: initialDate,
@@ -52,9 +52,55 @@ Future<DateTime?> showDateTimePicker({
   return null;
 }
 
+void showOptionsBottomSheet({
+  required BuildContext context,
+  required String title,
+  required List<ModalItem> items,
+  required ValueChanged<ModalItem> onItemSelected,
+}) {
+  showModalBottomSheet(
+    context: context,
+    builder: (_) => SafeArea(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text(
+              title,
+              style: Theme.of(context)
+                  .textTheme
+                  .subtitle1
+                  ?.copyWith(fontWeight: FontWeight.bold, letterSpacing: 2),
+            ),
+          ),
+          const Divider(thickness: 1.5),
+          Flexible(
+            child: ListView.separated(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+              itemBuilder: (_, index) => ListTile(
+                onTap: () {
+                  onItemSelected(items[index]);
+                  Navigator.pop(context);
+                },
+                title: Text(items[index].value),
+              ),
+              separatorBuilder: (_, __) => const Divider(thickness: 1),
+              itemCount: items.length,
+            ),
+          )
+        ],
+      ),
+    ),
+  );
+}
+
 extension Iterables<E> on Iterable<E> {
   Map<K, List<E>> groupBy<K>(K Function(E) keyFunction) => fold(
-      <K, List<E>>{},
-          (Map<K, List<E>> map, E element) =>
-      map..putIfAbsent(keyFunction(element), () => <E>[]).add(element));
+        <K, List<E>>{},
+        (Map<K, List<E>> map, E element) =>
+            map..putIfAbsent(keyFunction(element), () => <E>[]).add(element),
+      );
 }

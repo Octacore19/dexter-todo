@@ -71,9 +71,14 @@ class TaskRepoImpl implements TaskRepo {
         .get();
     _shifts.clear();
     final s = res.docs.map(
-      (e) => Shift(type: e.data().type ?? '', id: e.data().id ?? ''),
+      (e) => Shift(
+        type: e.data().type ?? '',
+        id: e.data().id ?? '',
+        start: e.data().startTime ?? '',
+      ),
     );
     _shifts.addAll(s);
+    _shifts.sort((a,b) => a.start.compareTo(b.start));
     return s.toList();
   }
 }

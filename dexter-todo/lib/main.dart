@@ -3,14 +3,14 @@ import 'package:dexter_todo/data/repo/task_repo.dart';
 import 'package:dexter_todo/data/repo/user_repo.dart';
 import 'package:dexter_todo/domain/repo/task_repo.dart';
 import 'package:dexter_todo/domain/repo/user_repo.dart';
+import 'package:dexter_todo/screen/manage_task/manage_task_bloc.dart';
+import 'package:dexter_todo/screen/manage_task/manage_task_screen.dart';
 import 'package:dexter_todo/utils.dart';
 import 'package:dexter_todo/firebase_options.dart';
 import 'package:dexter_todo/screen/auth/user_cubit.dart';
 import 'package:dexter_todo/screen/auth/user_screen.dart';
 import 'package:dexter_todo/screen/list/todo_list_bloc.dart';
 import 'package:dexter_todo/screen/list/todo_list_screen.dart';
-import 'package:dexter_todo/screen/new_task/new_task_bloc.dart';
-import 'package:dexter_todo/screen/new_task/new_task_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,8 +63,10 @@ class MyApp extends StatelessWidget {
                   taskRepo: RepositoryProvider.of(context)),
               child: const TodoListScreen()),
           '/new-todo-screen': (context) => BlocProvider(
-              create: (_) => NewTasksBloc(repo: RepositoryProvider.of(context)),
-              child: const NewTaskScreen()),
+              create: (_) => ManageTasksBloc(
+                  taskRepo: RepositoryProvider.of(context),
+                  userRepo: RepositoryProvider.of(context)),
+              child: const ManageTaskScreen()),
         },
       ),
     );

@@ -40,10 +40,12 @@ class TodoListBloc extends Bloc<TodoListEvents, TodoListState> {
       value.insert(0, Task.empty());
       tasks[element] = value;
     }
+    final sortedTasks = Map.fromEntries(tasks.entries.toList()
+      ..sort((a, b) => a.key.start.compareTo(b.key.start)));
     emit(
       TodoListState.updated(
         filters: state.filters,
-        tasks: tasks,
+        tasks: sortedTasks,
       ),
     );
   }

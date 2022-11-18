@@ -13,10 +13,14 @@ class UserEntity {
   final FieldValue? dateCreated;
   final FieldValue? dateModified;
 
-  factory UserEntity.fromFirestore(Map<String, dynamic> json) {
+  factory UserEntity.fromFirestore(
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
+  ) {
+    final json = snapshot.data();
     return UserEntity(
-      id: json['id'],
-      username: json['username'],
+      id: json?['id'],
+      username: json?['username'],
     );
   }
 

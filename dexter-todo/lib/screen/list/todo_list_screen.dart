@@ -31,7 +31,7 @@ class TodoListScreen extends StatelessWidget {
               _buildHeadline(context, args),
               const SizedBox(height: 16),
               _buildDateSelectionCard(context),
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
               Expanded(
                 child: BlocBuilder<TodoListBloc, TodoListState>(
                   builder: (_, state) {
@@ -156,12 +156,13 @@ class TodoListScreen extends StatelessWidget {
     if (tasks.isEmpty) {
       return const SliverToBoxAdapter();
     }
+    tasks.sort((a, b) => a.shift.start.compareTo(b.shift.start));
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (_, index) {
           if (index == 0) {
             return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 8, top: 24),
               child: Text(
                 title,
                 style: Theme.of(context).textTheme.headline5?.copyWith(
