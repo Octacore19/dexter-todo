@@ -7,20 +7,20 @@ part 'user_state.dart';
 
 class UserCubit extends Cubit<UserState> {
   UserCubit({required this.repo})
-      : super(const UpdatedUserState(
+      : super(const UserState(
           status: Status.pending,
+          username: '',
         ));
 
   final UserRepo repo;
 
   void onUserNameChanged(String username) {
-    emit(UpdatedUserState(username: username, status: Status.pending));
+    emit(UserState(username: username, status: Status.pending));
   }
 
   void submitUsername() async {
-    if (state is UpdatedUserState) {
-      final user = UserEntity.create((state as UpdatedUserState).username);
-      repo.saveUserToFirebase(user);
-    }
+    final user = UserEntity.create(state.username);
+    await repo.saveUserToFirebase(user);
+    emit(UserState(username: state.username, status: Status.success));
   }
 }

@@ -26,7 +26,8 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
           (task == null)
               ? null
               : taskRepo.patients.firstWhere(
-                  (element) => element.id.trim() == task.patient.trim()),
+                  (element) => element.id.trim() == task.patient.trim(),
+                  orElse: () => Patient.empty()),
           task,
         )) {
     on<OnTaskTitleChanged>(_onTaskTitleChanged);

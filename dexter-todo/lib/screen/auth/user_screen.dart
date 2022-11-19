@@ -8,6 +8,7 @@ class UserScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
@@ -17,67 +18,71 @@ class UserScreen extends StatelessWidget {
           statusBarColor: Colors.white,
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Center(
-            child: Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: LayoutBuilder(
-                builder: (_, cons) => Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: BlocBuilder<UserCubit, UserState>(
-                    builder: (context, state) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 32),
-                        Image.asset(
-                          "assets/nurse.png",
-                          height: cons.maxWidth / 2,
-                          width: cons.maxWidth / 2,
-                        ),
-                        const SizedBox(height: 32),
-                        TextFormField(
-                          onChanged:
-                          context.read<UserCubit>().onUserNameChanged,
-                          decoration: InputDecoration(
-                            hintText: 'Username',
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 16,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+      body: BlocListener<UserCubit, UserState>(
+        listener: (context, state) {
+          if (state.status == Status.success) {
+            Navigator.pushReplacementNamed(context, '/todo-list-screen', arguments: state.username);
+          }
+        },
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+              child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: LayoutBuilder(
+                  builder: (_, cons) => Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: BlocBuilder<UserCubit, UserState>(
+                      builder: (context, state) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 32),
+                          Image.asset(
+                            "assets/nurse.png",
+                            height: cons.maxWidth / 2,
+                            width: cons.maxWidth / 2,
                           ),
-                        ),
-                        const SizedBox(height: 32),
-                        SizedBox(
-                          width: cons.maxWidth,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              context.read<UserCubit>().submitUsername();
-                              Navigator.pushReplacementNamed(context, '/todo-list-screen', arguments: state.username);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding:
-                              const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
+                          const SizedBox(height: 32),
+                          TextFormField(
+                            onChanged:
+                            context.read<UserCubit>().onUserNameChanged,
+                            decoration: InputDecoration(
+                              hintText: 'Username',
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 16,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text('Get Started'),
                           ),
-                        )
-                      ],
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: cons.maxWidth,
+                            child: ElevatedButton(
+                              onPressed: () => context.read<UserCubit>().submitUsername(),
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text('Get Started'),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),

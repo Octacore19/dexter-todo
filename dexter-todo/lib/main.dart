@@ -72,7 +72,9 @@ class MyApp extends StatelessWidget {
                   taskRepo: RepositoryProvider.of(context),
                   userRepo: RepositoryProvider.of(context),
                 ),
-                child: const TodoListScreen(),
+                child: TodoListScreen(
+                  username: settings.arguments as String?,
+                ),
               );
               break;
             case '/manage-todo-screen':

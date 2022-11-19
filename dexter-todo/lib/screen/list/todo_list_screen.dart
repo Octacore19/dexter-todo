@@ -6,11 +6,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TodoListScreen extends StatelessWidget {
-  const TodoListScreen({super.key});
+  const TodoListScreen({super.key, this.username});
+
+  final String? username;
 
   @override
   Widget build(BuildContext context) {
-    String? args = ModalRoute.of(context)?.settings.arguments as String?;
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
@@ -28,7 +29,7 @@ class TodoListScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildHeadline(context, args),
+              _buildHeadline(context, username),
               const SizedBox(height: 16),
               _buildDateSelectionCard(context),
               const SizedBox(height: 8),
@@ -62,24 +63,37 @@ class TodoListScreen extends StatelessWidget {
 
   Widget _buildHeadline(BuildContext context, String? title) {
     final name = title ?? "User";
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          'Hello,',
-          style: Theme.of(context)
-              .textTheme
-              .headline5
-              ?.copyWith(fontWeight: FontWeight.w500, color: Colors.black),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Hello,',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline5
+                  ?.copyWith(fontWeight: FontWeight.w500, color: Colors.black),
+            ),
+            Text(
+              '$name.',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline5
+                  ?.copyWith(fontWeight: FontWeight.w700, color: Colors.black),
+            ),
+          ],
         ),
-        Text(
-          '$name.',
-          style: Theme.of(context)
-              .textTheme
-              .headline5
-              ?.copyWith(fontWeight: FontWeight.w700, color: Colors.black),
+        IconButton(
+          onPressed: () {
+            Navigator.popUntil(context, (route) => route.isFirst);
+            Navigator.pushReplacementNamed(context, '/');
+          },
+          icon: const Icon(Icons.power_settings_new_sharp),
         ),
       ],
     );
