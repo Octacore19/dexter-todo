@@ -52,4 +52,22 @@ class OnTaskUserSelected extends ManageTaskEvents {
   List<Object?> get props => [user];
 }
 
-class OnNewTaskSubmitted extends ManageTaskEvents {}
+class OnTaskStatusUpdated extends ManageTaskEvents {}
+
+class OnTaskPatientSelected extends ManageTaskEvents {
+  const OnTaskPatientSelected(this.patient);
+
+  final String patient;
+
+  @override
+  List<Object?> get props => [props];
+}
+
+class OnManageTaskSubmitted extends ManageTaskEvents {
+  const OnManageTaskSubmitted([this.editing = false]);
+
+  final bool editing;
+
+  @override
+  List<Object?> get props => [editing];
+}

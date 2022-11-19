@@ -52,13 +52,13 @@ Future<DateTime?> showDateTimePicker({
   return null;
 }
 
-void showOptionsBottomSheet({
+Future<T?> showOptionsBottomSheet<T>({
   required BuildContext context,
   required String title,
   required List<ModalItem> items,
   required ValueChanged<ModalItem> onItemSelected,
 }) {
-  showModalBottomSheet(
+  return showModalBottomSheet(
     context: context,
     builder: (_) => SafeArea(
       child: Column(
@@ -80,13 +80,23 @@ void showOptionsBottomSheet({
           Flexible(
             child: ListView.separated(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
-              itemBuilder: (_, index) => ListTile(
-                onTap: () {
-                  onItemSelected(items[index]);
-                  Navigator.pop(context);
-                },
-                title: Text(items[index].value),
-              ),
+              itemBuilder: (_, index) {
+                if (index == 0 && items[index].key.isEmpty) {
+                  return ListTile(
+                    onTap: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    title: const Text('Create a new option'),
+                  );
+                }
+                return ListTile(
+                  onTap: () {
+                    onItemSelected(items[index]);
+                    Navigator.pop(context);
+                  },
+                  title: Text(items[index].value),
+                );
+              },
               separatorBuilder: (_, __) => const Divider(thickness: 1),
               itemCount: items.length,
             ),

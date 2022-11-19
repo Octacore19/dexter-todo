@@ -1,5 +1,7 @@
 import 'package:dexter_todo/data/models/task_entity.dart';
+import 'package:dexter_todo/domain/models/patient.dart';
 import 'package:dexter_todo/domain/models/shift.dart';
+import 'package:dexter_todo/domain/models/task.dart';
 import 'package:dexter_todo/domain/models/user.dart';
 import 'package:dexter_todo/domain/repo/task_repo.dart';
 import 'package:dexter_todo/domain/repo/user_repo.dart';
@@ -14,20 +16,26 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
   ManageTasksBloc({
     required this.taskRepo,
     required this.userRepo,
+    this.task,
   }) : super(ManageTaskState.init(
-          taskRepo.shifts.first,
+          task?.shift ?? taskRepo.shifts.first,
           userRepo.currentUser,
+          task?.dateTime,
+          task?.isCompleted,
         )) {
     on<OnTaskTitleChanged>(_onTaskTitleChanged);
     on<OnTaskDescriptionChanged>(_onTaskDescriptionChanged);
     on<OnTaskDateTimeSelected>(_onTaskDateTimeSelected);
-    on<OnNewTaskSubmitted>(_onNewTaskSubmitted);
+    on<OnManageTaskSubmitted>(_onManageTaskSubmitted);
     on<OnTaskShiftSelected>(_onTaskShiftSelected);
     on<OnTaskUserSelected>(_onTaskUserSelected);
+    on<OnTaskStatusUpdated>(_onTaskStatusUpdated);
+    on<OnTaskPatientSelected>(_onTaskPatientSelected);
   }
 
   final TaskRepo taskRepo;
   final UserRepo userRepo;
+  final Task? task;
 
   void _onTaskTitleChanged(
     OnTaskTitleChanged event,
@@ -40,6 +48,8 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
       dateTime: state.dateTime,
       shift: state.shift,
       user: state.selectedUser,
+      isCompleted: state.isCompleted,
+      patient: state.patient,
     ));
   }
 
@@ -54,6 +64,8 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
       dateTime: state.dateTime,
       shift: state.shift,
       user: state.selectedUser,
+      isCompleted: state.isCompleted,
+      patient: state.patient,
     ));
   }
 
@@ -68,6 +80,8 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
       dateTime: event.dateTime,
       shift: state.shift,
       user: state.selectedUser,
+      isCompleted: state.isCompleted,
+      patient: state.patient,
     ));
   }
 
@@ -84,6 +98,8 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
       dateTime: state.dateTime,
       shift: shift,
       user: state.selectedUser,
+      isCompleted: state.isCompleted,
+      patient: state.patient,
     ));
   }
 
@@ -91,8 +107,8 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
     OnTaskUserSelected event,
     Emitter<ManageTaskState> emit,
   ) {
-    final user =
-        userRepo.users.firstWhere((element) => element.id.trim() == event.user.trim());
+    final user = userRepo.users
+        .firstWhere((element) => element.id.trim() == event.user.trim());
     emit(ManageTaskState.updated(
       enableSubmission: state.enableSubmission,
       title: state.title,
@@ -100,23 +116,76 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
       dateTime: state.dateTime,
       shift: state.shift,
       user: user,
+      isCompleted: state.isCompleted,
+      patient: state.patient,
     ));
   }
 
-  void _onNewTaskSubmitted(
-    OnNewTaskSubmitted event,
+  void _onTaskStatusUpdated(
+    OnTaskStatusUpdated event,
     Emitter<ManageTaskState> emit,
-  ) async {
-    final task = TaskEntity.create(
+  ) {
+    emit(ManageTaskState.updated(
+      enableSubmission: state.enableSubmission,
       title: state.title,
       description: state.description,
       dateTime: state.dateTime,
-      isCompleted: false,
-      shift: state.shift.id,
-      user: state.selectedUser.id,
-    );
-    await taskRepo.addNewTasks(task);
-    emit(ManageTaskState.init(state.shift, state.selectedUser));
+      shift: state.shift,
+      user: state.selectedUser,
+      isCompleted: !state.isCompleted,
+      patient: state.patient,
+    ));
+  }
+
+  void _onTaskPatientSelected(
+    OnTaskPatientSelected event,
+    Emitter<ManageTaskState> emit,
+  ) {
+    final patient = taskRepo.patients
+        .firstWhere((element) => element.id.trim() == event.patient.trim());
+    emit(ManageTaskState.updated(
+      enableSubmission: state.enableSubmission,
+      title: state.title,
+      description: state.description,
+      dateTime: state.dateTime,
+      shift: state.shift,
+      user: state.selectedUser,
+      isCompleted: state.isCompleted,
+      patient: patient,
+    ));
+  }
+
+  void _onManageTaskSubmitted(
+    OnManageTaskSubmitted event,
+    Emitter<ManageTaskState> emit,
+  ) async {
+    if (!event.editing) {
+      final task = TaskEntity.create(
+        title: state.title,
+        description: state.description,
+        dateTime: state.dateTime,
+        isCompleted: false,
+        shift: state.shift.id,
+        user: state.selectedUser.id,
+        patient: state.patient.id,
+      );
+      await taskRepo.addNewTasks(task);
+    } else {
+      if (task != null) {
+        final nTask = task!.copyWith(
+          title: state.title,
+          description: state.description,
+          dateTime: state.dateTime,
+          isCompleted: state.isCompleted,
+          shift: state.shift,
+          user: state.selectedUser.id,
+          patient: state.patient.id,
+        );
+        print('Id => ${nTask.id}');
+        await taskRepo.updateTask(nTask);
+      }
+    }
+    emit(ManageTaskState.success());
   }
 
   bool _checkEnabled({

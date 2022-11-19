@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dexter_todo/data/models/patient_entity.dart';
 import 'package:dexter_todo/data/models/shift_entity.dart';
 import 'package:dexter_todo/data/models/task_entity.dart';
+import 'package:dexter_todo/domain/models/patient.dart';
 import 'package:dexter_todo/domain/models/shift.dart';
 import 'package:dexter_todo/domain/models/task.dart';
 import 'package:dexter_todo/domain/repo/task_repo.dart';
@@ -11,7 +13,9 @@ class TaskRepoImpl implements TaskRepo {
   TaskRepoImpl({
     required this.db,
     required this.userRepo,
-  });
+  }) {
+    fetchAllPatients();
+  }
 
   final FirebaseFirestore db;
   final UserRepo userRepo;
@@ -23,6 +27,7 @@ class TaskRepoImpl implements TaskRepo {
           );
 
   final _shifts = List<Shift>.empty(growable: true);
+  final _patients = List<Patient>.empty(growable: true);
 
   @override
   Stream<List<Task>> get tasks => _taskRef.snapshots().asyncMap(
@@ -42,6 +47,8 @@ class TaskRepoImpl implements TaskRepo {
                 shift: shift,
                 dateTime: data.dateTime ?? '',
                 user: data.user ?? '',
+                description: data.description ?? '',
+                patient: data.patient ?? '',
               );
             },
           ).toList();
@@ -73,7 +80,7 @@ class TaskRepoImpl implements TaskRepo {
             id: task.id,
             title: task.title,
             dateTime: task.dateTime,
-            description: oldTask.description,
+            description: task.description,
             isCompleted: task.isCompleted,
             shift: task.shift.id,
             user: task.user,
@@ -89,6 +96,9 @@ class TaskRepoImpl implements TaskRepo {
 
   @override
   List<Shift> get shifts => _shifts;
+
+  @override
+  List<Patient> get patients => _patients;
 
   Future<List<Shift>> getAllShifts() async {
     final res = await db
@@ -108,6 +118,28 @@ class TaskRepoImpl implements TaskRepo {
     );
     _shifts.addAll(s);
     _shifts.sort((a, b) => a.start.compareTo(b.start));
+    return s.toList();
+  }
+
+  Future<List<Patient>> fetchAllPatients() async {
+    final res = await db
+        .collection('patients')
+        .withConverter(
+          fromFirestore: PatientEntity.fromFirestore,
+          toFirestore: (PatientEntity entity, options) => entity.toFirestore(),
+        )
+        .get();
+    _patients.clear();
+    final s = res.docs.map(
+      (e) => Patient.create(
+        name: e.data().name ?? '',
+        id: e.data().id ?? '',
+        dob: e.data().dob ?? '',
+        bloodGroup: e.data().bloodGroup ?? '',
+      ),
+    );
+    _patients.addAll(s);
+    _patients.sort((a, b) => a.name.compareTo(b.name));
     return s.toList();
   }
 }

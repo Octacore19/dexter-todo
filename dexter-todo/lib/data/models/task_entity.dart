@@ -11,6 +11,7 @@ class TaskEntity {
     this.isCompleted,
     this.shift,
     this.user,
+    this.patient,
   });
 
   final String? id;
@@ -20,6 +21,7 @@ class TaskEntity {
   final bool? isCompleted;
   final String? shift;
   final String? user;
+  final String? patient;
   final FieldValue? timeAdded;
   final FieldValue? timeModified;
 
@@ -30,6 +32,7 @@ class TaskEntity {
     required String shift,
     required String user,
     required bool isCompleted,
+    required String patient,
   }) {
     return TaskEntity._(
       id: '',
@@ -39,6 +42,7 @@ class TaskEntity {
       isCompleted: isCompleted,
       shift: shift,
       user: user,
+      patient: patient,
       timeAdded: FieldValue.serverTimestamp(),
       timeModified: FieldValue.serverTimestamp(),
     );
@@ -57,6 +61,7 @@ class TaskEntity {
       isCompleted: json?['isCompleted'],
       shift: json?['shift'],
       user: json?['user'],
+      patient: json?['patient'],
     );
   }
 
@@ -71,6 +76,7 @@ class TaskEntity {
       if (user != null) "user": user,
       if (timeAdded != null) "timeAdded": timeAdded,
       if (timeModified != null) "timeModified": timeModified,
+      if (patient != null) "patient": patient,
     };
   }
 
@@ -82,6 +88,7 @@ class TaskEntity {
     bool? isCompleted,
     String? shift,
     String? user,
+    String? patient,
   }) {
     return TaskEntity._(
       id: id ?? this.id,
@@ -93,6 +100,7 @@ class TaskEntity {
       isCompleted: isCompleted ?? this.isCompleted,
       shift: shift ?? this.shift,
       user: user ?? this.user,
+      patient: patient ?? this.patient,
     );
   }
 }

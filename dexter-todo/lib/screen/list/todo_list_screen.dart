@@ -42,7 +42,7 @@ class TodoListScreen extends StatelessWidget {
                       slivers: state.tasks.entries
                           .map(
                             (e) => _buildShifts(e.key.type, context, e.value),
-                      )
+                          )
                           .toList(),
                     );
                   },
@@ -174,7 +174,8 @@ class TodoListScreen extends StatelessWidget {
             );
           }
           return Padding(
-            padding: EdgeInsets.only(bottom: index == tasks.length - 1 ? 0 : 16),
+            padding:
+                EdgeInsets.only(bottom: index == tasks.length - 1 ? 0 : 16),
             child: _buildCheckTile(context, tasks[index]),
           );
         },
@@ -191,7 +192,8 @@ class TodoListScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: InkWell(
-        onTap: () => Navigator.of(context).pushNamed('/manage-todo-screen'),
+        onTap: () => Navigator.of(context)
+            .pushNamed('/manage-todo-screen', arguments: task),
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Row(

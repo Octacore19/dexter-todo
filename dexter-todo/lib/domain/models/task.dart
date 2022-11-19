@@ -9,23 +9,29 @@ class Task extends Equatable {
     required this.shift,
     required this.dateTime,
     required this.user,
+    required this.description,
+    required this.patient,
   });
 
   final String id;
   final String title;
+  final String description;
   final bool isCompleted;
   final Shift shift;
   final String dateTime;
   final String user;
+  final String patient;
 
   factory Task.empty() {
     return Task(
       title: '',
       id: '',
+      description: '',
       isCompleted: false,
       shift: Shift.empty(),
       dateTime: '',
       user: '',
+      patient: '',
     );
   }
 
@@ -36,14 +42,18 @@ class Task extends Equatable {
     Shift? shift,
     String? dateTime,
     String? user,
+    String? description,
+    String? patient,
   }) {
     return Task(
       title: title ?? this.title,
+      description: description ?? this.description,
       id: id ?? this.id,
       isCompleted: isCompleted ?? this.isCompleted,
       shift: shift ?? this.shift,
       dateTime: dateTime ?? this.dateTime,
       user: user ?? this.user,
+      patient: patient ?? this.patient,
     );
   }
 
@@ -55,5 +65,7 @@ class Task extends Equatable {
         shift,
         dateTime,
         user,
+        description,
+        patient,
       ];
 }

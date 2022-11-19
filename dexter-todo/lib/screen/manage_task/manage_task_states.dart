@@ -8,16 +8,43 @@ class ManageTaskState extends Equatable {
     required this.dateTime,
     required this.shift,
     required this.selectedUser,
+    required this.isCompleted,
+    required this.patient,
+    required this.success,
   });
 
-  factory ManageTaskState.init(Shift shift, User user) => ManageTaskState._(
-        enableSubmission: false,
-        title: "",
-        description: "",
-        dateTime: "",
-        shift: shift,
-        selectedUser: user,
-      );
+  factory ManageTaskState.init(
+    Shift shift,
+    User user,
+    String? date,
+    bool? isCompleted,
+  ) {
+    return ManageTaskState._(
+      enableSubmission: false,
+      title: "",
+      description: "",
+      dateTime: date ?? "",
+      shift: shift,
+      selectedUser: user,
+      isCompleted: isCompleted ?? false,
+      patient: Patient.empty(),
+      success: false,
+    );
+  }
+
+  factory ManageTaskState.success() {
+    return ManageTaskState._(
+      enableSubmission: false,
+      title: "",
+      description: "",
+      dateTime: "",
+      shift: Shift.empty(),
+      selectedUser: const User(username: "", id: ""),
+      isCompleted: false,
+      patient: Patient.empty(),
+      success: true,
+    );
+  }
 
   factory ManageTaskState.updated({
     required bool enableSubmission,
@@ -26,15 +53,21 @@ class ManageTaskState extends Equatable {
     required String dateTime,
     required Shift shift,
     required User user,
-  }) =>
-      ManageTaskState._(
-        enableSubmission: enableSubmission,
-        title: title,
-        description: description,
-        dateTime: dateTime,
-        shift: shift,
-        selectedUser: user,
-      );
+    required bool isCompleted,
+    required Patient patient,
+  }) {
+    return ManageTaskState._(
+      enableSubmission: enableSubmission,
+      title: title,
+      description: description,
+      dateTime: dateTime,
+      shift: shift,
+      selectedUser: user,
+      isCompleted: isCompleted,
+      patient: patient,
+      success: false,
+    );
+  }
 
   final bool enableSubmission;
   final String title;
@@ -42,6 +75,9 @@ class ManageTaskState extends Equatable {
   final String dateTime;
   final Shift shift;
   final User selectedUser;
+  final bool isCompleted;
+  final Patient patient;
+  final bool success;
 
   @override
   List<Object?> get props => [
@@ -51,5 +87,8 @@ class ManageTaskState extends Equatable {
         dateTime,
         shift,
         selectedUser,
+        isCompleted,
+        patient,
+        success,
       ];
 }

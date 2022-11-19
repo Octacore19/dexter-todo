@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dexter_todo/data/repo/task_repo.dart';
 import 'package:dexter_todo/data/repo/user_repo.dart';
+import 'package:dexter_todo/domain/models/task.dart';
 import 'package:dexter_todo/domain/repo/task_repo.dart';
 import 'package:dexter_todo/domain/repo/user_repo.dart';
 import 'package:dexter_todo/screen/manage_task/manage_task_bloc.dart';
@@ -53,21 +54,39 @@ class MyApp extends StatelessWidget {
         ),
         themeMode: ThemeMode.light,
         initialRoute: '/',
-        routes: {
-          '/': (context) => BlocProvider(
-              create: (_) => UserCubit(repo: RepositoryProvider.of(context)),
-              child: const UserScreen()),
-          '/todo-list-screen': (context) => BlocProvider(
-              create: (_) => TodoListBloc(
+        onGenerateRoute: (settings) {
+          Widget route = Container();
+          switch (settings.name) {
+            case '/':
+              route = BlocProvider(
+                create: (context) => UserCubit(
+                  repo: RepositoryProvider.of(context),
+                ),
+                child: const UserScreen(),
+              );
+              break;
+            case '/todo-list-screen':
+              route = BlocProvider(
+                create: (context) => TodoListBloc(
                   filters: generateDateFilters(),
                   taskRepo: RepositoryProvider.of(context),
-                  userRepo: RepositoryProvider.of(context)),
-              child: const TodoListScreen()),
-          '/manage-todo-screen': (context) => BlocProvider(
-              create: (_) => ManageTasksBloc(
+                  userRepo: RepositoryProvider.of(context),
+                ),
+                child: const TodoListScreen(),
+              );
+              break;
+            case '/manage-todo-screen':
+              route = BlocProvider(
+                create: (context) => ManageTasksBloc(
                   taskRepo: RepositoryProvider.of(context),
-                  userRepo: RepositoryProvider.of(context)),
-              child: const ManageTaskScreen()),
+                  userRepo: RepositoryProvider.of(context),
+                  task: settings.arguments as Task?,
+                ),
+                child: ManageTaskScreen(task: settings.arguments as Task?),
+              );
+              break;
+          }
+          return MaterialPageRoute(builder: (context) => route);
         },
       ),
     );
