@@ -22,7 +22,8 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
           (task == null)
               ? userRepo.currentUser
               : userRepo.users.firstWhere(
-                  (element) => element.id.trim() == task.user.trim()),
+                  (element) => element.id.trim() == task.user.trim(),
+                  orElse: () => userRepo.currentUser),
           (task == null)
               ? null
               : taskRepo.patients.firstWhere(

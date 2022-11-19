@@ -28,8 +28,9 @@ class UserRepoImpl implements UserRepo {
   @override
   Future<void> saveUserToFirebase(UserEntity user) async {
     try {
-      final res =
-          await _userRef.where("username", isEqualTo: user.username).get();
+      final res = await _userRef
+          .where("username", isEqualTo: user.username?.trim())
+          .get();
       if (res.size == 0) {
         final userDocRef = db.collection('users').doc();
         final newUser = await db.runTransaction((transaction) {

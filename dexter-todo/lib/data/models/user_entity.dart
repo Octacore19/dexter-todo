@@ -35,10 +35,10 @@ class UserEntity {
 
   Map<String, dynamic> toFirestore() {
     return {
-      "id": id,
-      "username": username,
-      "dateCreated": dateCreated,
-      "dateModified": dateModified,
+      if (id != null) "id": id,
+      if (username != null) "username": username?.trim(),
+      if (dateCreated != null) "dateCreated": dateCreated,
+      if (dateModified != null) "dateModified": dateModified,
     };
   }
 
