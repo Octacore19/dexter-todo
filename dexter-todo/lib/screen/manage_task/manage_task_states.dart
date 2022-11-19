@@ -16,18 +16,18 @@ class ManageTaskState extends Equatable {
   factory ManageTaskState.init(
     Shift shift,
     User user,
-    String? date,
-    bool? isCompleted,
+    Patient? patient,
+    Task? task,
   ) {
     return ManageTaskState._(
       enableSubmission: false,
-      title: "",
-      description: "",
-      dateTime: date ?? "",
+      title: task?.title ?? "",
+      description: task?.description ?? "",
+      dateTime: task?.dateTime ?? "",
       shift: shift,
       selectedUser: user,
-      isCompleted: isCompleted ?? false,
-      patient: Patient.empty(),
+      isCompleted: task?.isCompleted ?? false,
+      patient: patient ?? Patient.empty(),
       success: false,
     );
   }

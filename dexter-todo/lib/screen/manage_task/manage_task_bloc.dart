@@ -19,9 +19,15 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
     this.task,
   }) : super(ManageTaskState.init(
           task?.shift ?? taskRepo.shifts.first,
-          userRepo.currentUser,
-          task?.dateTime,
-          task?.isCompleted,
+          (task == null)
+              ? userRepo.currentUser
+              : userRepo.users.firstWhere(
+                  (element) => element.id.trim() == task.user.trim()),
+          (task == null)
+              ? null
+              : taskRepo.patients.firstWhere(
+                  (element) => element.id.trim() == task.patient.trim()),
+          task,
         )) {
     on<OnTaskTitleChanged>(_onTaskTitleChanged);
     on<OnTaskDescriptionChanged>(_onTaskDescriptionChanged);
@@ -58,7 +64,7 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
     Emitter<ManageTaskState> emit,
   ) {
     emit(ManageTaskState.updated(
-      enableSubmission: state.enableSubmission,
+      enableSubmission: _checkEnabled(),
       title: state.title,
       description: event.description,
       dateTime: state.dateTime,
@@ -92,7 +98,7 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
     final shift = taskRepo.shifts
         .firstWhere((element) => element.id.trim() == event.shift.trim());
     emit(ManageTaskState.updated(
-      enableSubmission: state.enableSubmission,
+      enableSubmission: _checkEnabled(),
       title: state.title,
       description: state.description,
       dateTime: state.dateTime,
@@ -110,7 +116,7 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
     final user = userRepo.users
         .firstWhere((element) => element.id.trim() == event.user.trim());
     emit(ManageTaskState.updated(
-      enableSubmission: state.enableSubmission,
+      enableSubmission: _checkEnabled(),
       title: state.title,
       description: state.description,
       dateTime: state.dateTime,
@@ -126,7 +132,7 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
     Emitter<ManageTaskState> emit,
   ) {
     emit(ManageTaskState.updated(
-      enableSubmission: state.enableSubmission,
+      enableSubmission: _checkEnabled(),
       title: state.title,
       description: state.description,
       dateTime: state.dateTime,
@@ -144,7 +150,7 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
     final patient = taskRepo.patients
         .firstWhere((element) => element.id.trim() == event.patient.trim());
     emit(ManageTaskState.updated(
-      enableSubmission: state.enableSubmission,
+      enableSubmission: _checkEnabled(),
       title: state.title,
       description: state.description,
       dateTime: state.dateTime,
@@ -181,7 +187,6 @@ class ManageTasksBloc extends Bloc<ManageTaskEvents, ManageTaskState> {
           user: state.selectedUser.id,
           patient: state.patient.id,
         );
-        print('Id => ${nTask.id}');
         await taskRepo.updateTask(nTask);
       }
     }
